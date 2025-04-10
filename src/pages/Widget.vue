@@ -11,19 +11,23 @@
             <button @click="autoScrollAndLike(true)" class="btn-like">Like</button>
             <button @click="autoScrollAndLike(false)" class="btn-dislike">DisLike</button>
         </div>
-        <div class="blocker-view"></div>
+        <div class="blocker-view" :class="{ 'workStart': workStart, 'workEnd': !workStart }"></div>
     </div>
     <img src="../icon-with-shadow.svg" class="icon" @click="toggle" alt="Open" />
 </template>
 
 <script setup>
 import { ref } from 'vue';
+
 const visible = ref(false);
+const workStart = ref(false);
 const commentCount = ref(5);
 const toggle = () => (visible.value = !visible.value);
+
 function clickLikeButtons(key, likeButtons) {
     if (likeButtons.length === 0) {
         console.log("Лайк-кнопки не найдены. Возможно, комментарии не загружены.");
+        workStart.value = false;
         return false;
     }
     console.log(`Найдено кнопок лайка: ${likeButtons.length}`);
@@ -41,6 +45,9 @@ function clickLikeButtons(key, likeButtons) {
                     button.click(); console.log(`Лайк на комментарий ${index + 1}`);
                     window.scrollBy(0, button.offsetHeight + 60);
                 }
+                if (index + 1 === likeButtons.length) {
+                    workStart.value = false;
+                }
             }, index * 1000);
         });
     }, 2000);
@@ -48,44 +55,50 @@ function clickLikeButtons(key, likeButtons) {
     return true;
 }
 function autoScrollAndLike(key) {
+    workStart.value = true;
     let attempts = 0;
     let commentPool1 = 0;
     let commentPool2 = 0;
     const maxAttempts = 5;
-    window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth'
-    });
     setTimeout(() => {
-        const scrollInterval = setInterval(() => {
-            window.scrollBy(0, 500);
-            const likeButtons = Array.from(document.querySelectorAll(`button[aria-label*="${key ? 'Нравится' : 'Не нравится'}"]`));
-            console.log(`Найдено кнопок лайка: ${likeButtons && likeButtons.length}`);
+        window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+        });
+        setTimeout(() => {
+            const scrollInterval = setInterval(() => {
+                window.scrollBy(0, 500);
+                const likeButtons = Array.from(document.querySelectorAll(`button[aria-label*="${key ? 'Нравится' : 'Не нравится'}"]`));
+                console.log(`Найдено кнопок лайка: ${likeButtons && likeButtons.length}`);
 
-            // Проверять массив кнопко если лайкаем фильтровать на фхоже уже лайкнутое и дизлайкнутое, 
-            // если дизлайкаем фильтровать 2 первых кнопки
-            // блочить состояние во время работы + кнопка остановки
+                // Проверять массив кнопко если лайкаем фильтровать на входе уже лайкнутое и дизлайкнутое, 
+                // если дизлайкаем фильтровать 2 первых кнопки
+                // кнопка остановки
 
-            commentPool1 = likeButtons.length;
-            if (commentPool1 === commentPool2) {
-                attempts++;
-                console.log(`Коменты не добавились раз`, attempts);
-            } else {
-                attempts = 0;
-            }
-            commentPool2 = likeButtons.length
-            if (attempts === maxAttempts || (likeButtons && likeButtons.length >= commentCount.value)) {
-                console.log(`Наскролили нужное количество коментов`, likeButtons.slice(0, commentCount.value).length);
-                clearInterval(scrollInterval);
-                clickLikeButtons(key, likeButtons.slice(0, commentCount.value));
-            }
+                commentPool1 = likeButtons.length;
+                if (commentPool1 === commentPool2) {
+                    attempts++;
+                    console.log(`Коменты не добавились раз`, attempts);
+                } else {
+                    attempts = 0;
+                }
+                commentPool2 = likeButtons.length
+                if (attempts === maxAttempts || (likeButtons && likeButtons.length >= commentCount.value)) {
+                    console.log(`Наскролили нужное количество коментов`, likeButtons.slice(0, commentCount.value).length);
+                    clearInterval(scrollInterval);
+                    clickLikeButtons(key, likeButtons.slice(0, commentCount.value));
+                }
+            }, 2000);
         }, 2000);
-    }, 2000);
-
+    }, 1000);
 }
 </script>
 
 <style scoped>
+* {
+    box-sizing: border-box;
+}
+
 h2 {
     margin: 12px 4px;
     font-size: 24px;
@@ -133,6 +146,7 @@ p {
     width: 300px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .icon {
@@ -191,6 +205,7 @@ p {
 }
 
 .blocker-view {
+    border-radius: 8px;
     width: 100%;
     height: 100%;
     background: repeating-linear-gradient(45deg,
@@ -199,24 +214,43 @@ p {
             yellow 10px,
             yellow 20px);
     position: absolute;
-    top: -250px;
-    /* старт за пределами экрана */
+    top: -220px;
     left: 50%;
     transform: translateX(-50%);
-    animation: slide-down 0.8s ease-out forwards;
-    border: 2px solid #000;
+    border: 1px solid #000;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    opacity: 0.5;
     z-index: 9999;
+}
+
+.workStart {
+    animation: slide-down 1s ease-out forwards;
+}
+
+.workEnd {
+    animation: slide-up 1s ease-out forwards;
 }
 
 @keyframes slide-down {
     from {
-        top: -250px;
+        top: -220px;
         opacity: 0;
     }
 
     to {
-        top: 50px;
+        top: 0px;
+        opacity: 1;
+    }
+}
+
+@keyframes slide-up {
+    from {
+        top: 0;
+        opacity: 0;
+    }
+
+    to {
+        top: -220pxpx;
         opacity: 1;
     }
 }

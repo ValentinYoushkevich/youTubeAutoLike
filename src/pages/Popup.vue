@@ -12,7 +12,6 @@
 <script setup lang="js">
 function stat() {
   console.log("Hello from the popup!");
-
 }
 </script>
 
