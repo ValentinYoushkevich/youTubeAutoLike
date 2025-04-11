@@ -68,12 +68,18 @@ function autoScrollAndLike(key) {
         setTimeout(() => {
             const scrollInterval = setInterval(() => {
                 window.scrollBy(0, 500);
-                const likeButtons = Array.from(document.querySelectorAll(`button[aria-label*="${key ? 'Нравится' : 'Не нравится'}"]`));
-                console.log(`Найдено кнопок лайка: ${likeButtons && likeButtons.length}`);
+                const keyString = key ? 'Нравится' : 'Не нравится';
+                let likeButtons = Array.from(document.querySelectorAll(`button[aria-label*="${keyString}"]`));
+                console.log(`Найдено кнопок лайка: ${likeButtons && likeButtons.length}`, likeButtons);
 
-                // Проверять массив кнопко если лайкаем фильтровать на входе уже лайкнутое и дизлайкнутое, 
-                // если дизлайкаем фильтровать 2 первых кнопки
-                // кнопка остановки
+                // кнопка остановки работы
+                // экран с результатами работы
+                // добавить кнопки снять лайки\дизлайки
+
+                if (!key) {
+                    // если дизлайкаем фильтровать 2 первых кнопки
+                    likeButtons = likeButtons.slice(2);
+                }
 
                 commentPool1 = likeButtons.length;
                 if (commentPool1 === commentPool2) {
