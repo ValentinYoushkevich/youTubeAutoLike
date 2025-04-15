@@ -11,7 +11,9 @@
             <button @click="autoScrollAndLike(true)" :disabled="commentCount <= 0" class="btn-like">Like</button>
             <button @click="autoScrollAndLike(false)" :disabled="commentCount <= 0" class="btn-dislike">DisLike</button>
         </div>
-        <div class="blocker-view" :class="{ 'workStart': workStart, 'workEnd': !workStart }"></div>
+        <div class="blocker-view" :class="{ 'workStart': workStart, 'workEnd': !workStart }">
+            <button @click="stopWork = true" class="btn-stop">Stop</button>
+        </div>
     </div>
     <img src="../icon-with-shadow.svg" class="icon" @click="toggle" alt="Open" />
 </template>
@@ -21,6 +23,7 @@ import { ref } from 'vue';
 
 const visible = ref(false);
 const workStart = ref(false);
+const stopWork = ref(false);
 const commentCount = ref(5);
 const toggle = () => (visible.value = !visible.value);
 
@@ -39,7 +42,11 @@ function clickLikeButtons(likeButtons) {
         });
     }
     setTimeout(() => {
-        likeButtons.forEach((button, index) => {
+        likeButtons.every((button, index) => {
+            if (stopWork.value) {
+                stopWork.value = false;
+                return true
+            }
             setTimeout(() => {
                 if (document.contains(button) && button.getAttribute("aria-pressed") === 'false') {
                     button.click(); console.log(`Лайк на комментарий ${index + 1}`);
@@ -72,10 +79,18 @@ function autoScrollAndLike(key) {
                 let likeButtons = Array.from(document.querySelectorAll(`button[aria-label*="${keyString}"]`));
                 console.log(`Найдено кнопок лайка: ${likeButtons && likeButtons.length}`);
 
-                // кнопка остановки работы
                 // экран с результатами работы
                 // добавить кнопки снять лайки\дизлайки
                 // смена языка en/rus
+                // обнаружение перехода по ссылкам внутри SPA youtube.com
+
+                if (stopWork.value) {
+                    console.log(`Остановка работы`);
+                    stopWork.value = false;
+                    clearInterval(scrollInterval);
+                    workStart.value = false;
+                    return
+                }
 
                 if (!key) {
                     // если дизлайкаем фильтровать 2 первых кнопки
@@ -198,7 +213,8 @@ p {
 }
 
 .btn-like,
-.btn-dislike {
+.btn-dislike,
+.btn-stop {
     margin-right: 12px;
     border-radius: 10px;
     color: white;
@@ -208,12 +224,22 @@ p {
     outline: none;
     border: none;
     cursor: pointer;
+    border: 1px solid #c0f404;
+}
+.btn-like{
+    border: 1px solid #0B63F6;
 }
 
 .btn-dislike {
     background: white;
     border: 1px solid #0B63F6;
     color: #0B63F6;
+}
+
+.btn-stop {
+    background: black;
+    border: 1px solid black;
+    color: white;
 }
 
 .blocker-view {
@@ -233,6 +259,9 @@ p {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     opacity: 0.5;
     z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .workStart {
