@@ -1,118 +1,154 @@
 <template>
-    <div class="popup" v-if="visible">
-        <h2>YouTube AutoLike</h2>
-        <div class="icon-close" @click="toggle"></div>
-        <p>Привет, я помогу пролайкать все коменты под видео в 1 клик!</p>
-        <div class="counter">
-            <p>Выбери количество коментов, которые хочешь пролайкать</p>
-            <input type="number" class="like-input" v-model="commentCount" />
-        </div>
-        <div class="buttons">
-            <button @click="autoScrollAndLike(true)" :disabled="commentCount <= 0" class="btn-like">Like</button>
-            <button @click="autoScrollAndLike(false)" :disabled="commentCount <= 0" class="btn-dislike">DisLike</button>
-        </div>
-        <div class="blocker-view" :class="{ 'workStart': workStart, 'workEnd': !workStart }">
-            <button @click="stopWork = true" class="btn-stop">Stop</button>
-        </div>
+  <div
+    v-if="visible"
+    class="popup"
+  >
+    <h2>YouTube AutoLike</h2>
+    <div
+      class="icon-close"
+      @click="toggle"
+    />
+    <p>Привет, я помогу пролайкать все коменты под видео в 1 клик!</p>
+    <div class="counter">
+      <p>Выбери количество коментов, которые хочешь пролайкать</p>
+      <input
+        v-model="commentCount"
+        type="number"
+        class="like-input"
+      >
     </div>
-    <img src="../icon-with-shadow.svg" class="icon" @click="toggle" alt="Open" />
+    <div class="buttons">
+      <button
+        :disabled="commentCount <= 0"
+        class="btn-like"
+        @click="autoScrollAndLike(true)"
+      >
+        Like
+      </button>
+      <button
+        :disabled="commentCount <= 0"
+        class="btn-dislike"
+        @click="autoScrollAndLike(false)"
+      >
+        DisLike
+      </button>
+    </div>
+    <div
+      class="blocker-view"
+      :class="{ 'workStart': workStart, 'workEnd': !workStart }"
+    >
+      <button
+        class="btn-stop"
+        @click="stopWork = true"
+      >
+        Stop
+      </button>
+    </div>
+  </div>
+  <img
+    src="../icon-with-shadow.svg"
+    class="icon"
+    alt="Open"
+    @click="toggle"
+  >
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-const visible = ref(false);
-const workStart = ref(false);
-const stopWork = ref(false);
-const commentCount = ref(5);
-const toggle = () => (visible.value = !visible.value);
+const visible = ref(false)
+const workStart = ref(false)
+const stopWork = ref(false)
+const commentCount = ref(5)
+const toggle = () => (visible.value = !visible.value)
 
-function clickLikeButtons(likeButtons) {
-    if (likeButtons.length === 0) {
-        console.log("Лайк-кнопки не найдены. Возможно, комментарии не загружены.");
-        workStart.value = false;
-        return false;
-    }
-    console.log(`Найдено кнопок лайка: ${likeButtons.length}`);
-    const commentsHeader = document.querySelector('#sections');
-    if (commentsHeader) {
-        document.querySelector('#sections').scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-    }
-    setTimeout(() => {
-        likeButtons.every((button, index) => {
-            if (stopWork.value) {
-                stopWork.value = false;
-                return true
-            }
-            setTimeout(() => {
-                if (document.contains(button) && button.getAttribute("aria-pressed") === 'false') {
-                    button.click(); console.log(`Лайк на комментарий ${index + 1}`);
-                    window.scrollBy(0, button.offsetHeight + 60);
-                }
-                if (index + 1 === likeButtons.length) {
-                    workStart.value = false;
-                }
-            }, index * 1000);
-        });
-    }, 2000);
+function clickLikeButtons (likeButtons) {
+  if (likeButtons.length === 0) {
+    console.log('Лайк-кнопки не найдены. Возможно, комментарии не загружены.')
+    workStart.value = false
+    return false
+  }
+  console.log(`Найдено кнопок лайка: ${likeButtons.length}`)
+  const commentsHeader = document.querySelector('#sections')
+  if (commentsHeader) {
+    document.querySelector('#sections').scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    })
+  }
+  setTimeout(() => {
+    likeButtons.every((button, index) => {
+      if (stopWork.value) {
+        stopWork.value = false
+        return true
+      }
+      setTimeout(() => {
+        if (document.contains(button) && button.getAttribute('aria-pressed') === 'false') {
+          button.click(); console.log(`Лайк на комментарий ${index + 1}`)
+          window.scrollBy(0, button.offsetHeight + 60)
+        }
+        if (index + 1 === likeButtons.length) {
+          workStart.value = false
+        }
+      }, index * 1000)
+      return false
+    })
+  }, 2000)
 
-    return true;
+  return true
 }
-function autoScrollAndLike(key) {
-    workStart.value = true;
-    let attempts = 0;
-    let commentPool1 = 0;
-    let commentPool2 = 0;
-    const maxAttempts = 5;
+function autoScrollAndLike (key) {
+  workStart.value = true
+  let attempts = 0
+  let commentPool1 = 0
+  let commentPool2 = 0
+  const maxAttempts = 5
+  setTimeout(() => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    })
     setTimeout(() => {
-        window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: 'smooth'
-        });
-        setTimeout(() => {
-            const scrollInterval = setInterval(() => {
-                window.scrollBy(0, 500);
-                const keyString = key ? 'Нравится' : 'Не нравится';
-                let likeButtons = Array.from(document.querySelectorAll(`button[aria-label*="${keyString}"]`));
-                console.log(`Найдено кнопок лайка: ${likeButtons && likeButtons.length}`);
+      const scrollInterval = setInterval(() => {
+        window.scrollBy(0, 500)
+        const keyString = key ? 'Нравится' : 'Не нравится'
+        let likeButtons = Array.from(document.querySelectorAll(`button[aria-label*="${keyString}"]`))
+        console.log(`Найдено кнопок лайка: ${likeButtons && likeButtons.length}`)
 
-                // экран с результатами работы
-                // добавить кнопки снять лайки\дизлайки
-                // смена языка en/rus
-                // обнаружение перехода по ссылкам внутри SPA youtube.com
+        // экран с результатами работы
+        // добавить кнопки снять лайки\дизлайки
+        // смена языка en/rus
+        // обнаружение перехода по ссылкам внутри SPA youtube.com
 
-                if (stopWork.value) {
-                    console.log(`Остановка работы`);
-                    stopWork.value = false;
-                    clearInterval(scrollInterval);
-                    workStart.value = false;
-                    return
-                }
+        if (stopWork.value) {
+          console.log('Остановка работы')
+          stopWork.value = false
+          clearInterval(scrollInterval)
+          workStart.value = false
+          return
+        }
 
-                if (!key) {
-                    // если дизлайкаем фильтровать 2 первых кнопки
-                    likeButtons = likeButtons.slice(2);
-                }
+        if (!key) {
+          // если дизлайкаем фильтровать 2 первых кнопки
+          likeButtons = likeButtons.slice(2)
+        }
 
-                commentPool1 = likeButtons.length;
-                if (commentPool1 === commentPool2) {
-                    attempts++;
-                    console.log(`Коменты не добавились раз`, attempts);
-                } else {
-                    attempts = 0;
-                }
-                commentPool2 = likeButtons.length
-                if (attempts === maxAttempts || (likeButtons && likeButtons.length >= commentCount.value)) {
-                    console.log(`Наскролили нужное количество коментов`, likeButtons.slice(0, commentCount.value).length);
-                    clearInterval(scrollInterval);
-                    clickLikeButtons(key, likeButtons.slice(0, commentCount.value));
-                }
-            }, 2000);
-        }, 2000);
-    }, 1000);
+        commentPool1 = likeButtons.length
+        if (commentPool1 === commentPool2) {
+          attempts++
+          console.log('Коменты не добавились раз', attempts)
+        } else {
+          attempts = 0
+        }
+        commentPool2 = likeButtons.length
+        if (attempts === maxAttempts || (likeButtons && likeButtons.length >= commentCount.value)) {
+          console.log('Наскролили нужное количество коментов', likeButtons.slice(0, commentCount.value).length)
+          clearInterval(scrollInterval)
+          clickLikeButtons(key, likeButtons.slice(0, commentCount.value))
+        }
+      }, 2000)
+    }, 2000)
+  }, 1000)
 }
 </script>
 

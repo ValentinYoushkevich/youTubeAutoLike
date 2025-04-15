@@ -1,17 +1,19 @@
 <template>
   <div>
-    <img src="/icon-with-shadow.svg" />
+    <img src="/icon-with-shadow.svg">
     <h1>vite-plugin-web-extension</h1>
     <p>
       Template: <code>vue-js</code>
     </p>
-    <button @click="stat">Жми</button>
+    <button @click="stat">
+      Жми
+    </button>
   </div>
 </template>
 
 <script setup lang="js">
-function stat() {
-  console.log("Hello from the popup!");
+function stat () {
+  console.log('Hello from the popup!')
 }
 </script>
 
