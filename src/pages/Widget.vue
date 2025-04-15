@@ -8,8 +8,8 @@
             <input type="number" class="like-input" v-model="commentCount" />
         </div>
         <div class="buttons">
-            <button @click="autoScrollAndLike(true)" class="btn-like">Like</button>
-            <button @click="autoScrollAndLike(false)" class="btn-dislike">DisLike</button>
+            <button @click="autoScrollAndLike(true)" :disabled="commentCount <= 0" class="btn-like">Like</button>
+            <button @click="autoScrollAndLike(false)" :disabled="commentCount <= 0" class="btn-dislike">DisLike</button>
         </div>
         <div class="blocker-view" :class="{ 'workStart': workStart, 'workEnd': !workStart }"></div>
     </div>
@@ -24,7 +24,7 @@ const workStart = ref(false);
 const commentCount = ref(5);
 const toggle = () => (visible.value = !visible.value);
 
-function clickLikeButtons(key, likeButtons) {
+function clickLikeButtons(likeButtons) {
     if (likeButtons.length === 0) {
         console.log("Лайк-кнопки не найдены. Возможно, комментарии не загружены.");
         workStart.value = false;
@@ -70,11 +70,12 @@ function autoScrollAndLike(key) {
                 window.scrollBy(0, 500);
                 const keyString = key ? 'Нравится' : 'Не нравится';
                 let likeButtons = Array.from(document.querySelectorAll(`button[aria-label*="${keyString}"]`));
-                console.log(`Найдено кнопок лайка: ${likeButtons && likeButtons.length}`, likeButtons);
+                console.log(`Найдено кнопок лайка: ${likeButtons && likeButtons.length}`);
 
                 // кнопка остановки работы
                 // экран с результатами работы
                 // добавить кнопки снять лайки\дизлайки
+                // смена язфка en/rus
 
                 if (!key) {
                     // если дизлайкаем фильтровать 2 первых кнопки
@@ -137,6 +138,11 @@ p {
 .buttons {
     display: flex;
     margin-top: 20px;
+
+    button:disabled {
+        background: grey;
+        cursor: not-allowed;
+    }
 }
 
 .popup {
