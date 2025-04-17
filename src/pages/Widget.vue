@@ -46,6 +46,7 @@
     </div>
   </div>
   <img
+    v-show="visibleIcon"
     src="../icon-with-shadow.svg"
     class="icon"
     alt="Open"
@@ -54,13 +55,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const visible = ref(false)
+const visibleIcon = ref(false)
 const workStart = ref(false)
 const stopWork = ref(false)
 const commentCount = ref(5)
 const toggle = () => (visible.value = !visible.value)
+
+onMounted(() => {
+  window.addEventListener('yt-navigate-finish', () => {
+    if (location.href.includes('watch?v=')) {
+      visibleIcon.value = true
+    } else {
+      visibleIcon.value = false
+    }
+  })
+})
 
 function clickLikeButtons (likeButtons) {
   if (likeButtons.length === 0) {
