@@ -62,6 +62,7 @@ const visibleIcon = ref(false)
 const workStart = ref(false)
 const stopWork = ref(false)
 const commentCount = ref(5)
+let scrollInterval = null
 const toggle = () => (visible.value = !visible.value)
 
 onMounted(() => {
@@ -71,6 +72,7 @@ onMounted(() => {
     } else {
       visibleIcon.value = false
     }
+    clearState()
   })
 })
 
@@ -121,7 +123,7 @@ function autoScrollAndLike (key) {
       behavior: 'smooth'
     })
     setTimeout(() => {
-      const scrollInterval = setInterval(() => {
+      scrollInterval = setInterval(() => {
         window.scrollBy(0, 500)
         const keyString = key ? 'Нравится' : 'Не нравится'
         let likeButtons = Array.from(document.querySelectorAll(`button[aria-label*="${keyString}"]`))
@@ -130,7 +132,6 @@ function autoScrollAndLike (key) {
         // экран с результатами работы
         // добавить кнопки снять лайки\дизлайки
         // смена языка en/rus
-        // обнаружение перехода по ссылкам внутри SPA youtube.com
 
         if (stopWork.value) {
           console.log('Остановка работы')
@@ -161,6 +162,13 @@ function autoScrollAndLike (key) {
       }, 2000)
     }, 2000)
   }, 1000)
+}
+
+function clearState () {
+  workStart.value = false
+  stopWork.value = true
+  commentCount.value = 5
+  clearInterval(scrollInterval)
 }
 </script>
 
